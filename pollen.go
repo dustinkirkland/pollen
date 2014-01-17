@@ -59,8 +59,11 @@ func handler(response http.ResponseWriter, request *http.Request) {
 	dev.WriteString(fmt.Sprintf("%d", time.Now().UnixNano()))
 }
 
-func main() {
+func init() {
 	log, _ = syslog.New(syslog.LOG_ERR, "pollen")
+}
+
+func main() {
 	dev, _ = os.Create(DEVICE)
 	http.HandleFunc("/", handler)
 	http_port := fmt.Sprintf(":%s", os.Args[1])
