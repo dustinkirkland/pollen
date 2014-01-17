@@ -11,6 +11,6 @@ test: pollen.go pollen_test.go
 	$(GO_TEST)
 
 clean:
-	$(GO_CLEAN)
+	$(RM) pollen
 
 .PHONY: all clean
