@@ -1,6 +1,12 @@
-pollen (3.18) unreleased; urgency=low
+pollen (4.0) unreleased; urgency=low
 
-  * UNRELEASED
+  * check_pollen, debian/control, debian/copyright,
+    debian/pollinate.default, debian/pollinate.install,
+    debian/pollinate.manpages, debian/pollinate.postinst,
+    debian/pollinate.postrm, debian/pollinate.upstart,
+    entropy.ubuntu.com.pem, INSTALL, Makefile, pollinate, pollinate.1:
+    - split pollen and pollinate into separate projects and packages
+    - re-enable the pollen build
 
  -- Dustin Kirkland <kirkland@ubuntu.com>  Mon, 10 Feb 2014 14:16:12 -0600
 

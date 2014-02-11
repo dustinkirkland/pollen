@@ -1,9 +1,0 @@
-# These the options that are used by pollinate(1) by default.
-# Note that any option here can be overriden on the command line
-# at invocation time.  Please see pollinate(1) for documentation.
-BINARY=1
-QUIET=0
-WAIT=3
-DEVICE="/dev/urandom"
-POOL="https://entropy.ubuntu.com/"
-CURL_OPTS="--cacert /etc/pollinate/entropy.ubuntu.com.pem"

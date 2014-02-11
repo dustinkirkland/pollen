@@ -7,7 +7,7 @@ Build-Depends: debhelper (>= 7.0.50~),
  autoconf,
  automake,
  dh-apparmor,
-# gccgo
+ golang-go
 Standards-Version: 3.9.4
 Homepage: http://launchpad.net/pollen
 
@@ -23,18 +23,3 @@ Description: Entropy-as-a-Service web server
  Pollen is an Entropy-as-a-Service web server, providing random seeds.
  This can be performed over both cleartext http and encrypted
  https TLS connections.
-
-Package: pollinate
-Architecture: all
-Depends: ${misc:Depends}, run-one, curl, adduser
-Suggests: pollen-server, ent
-Provides: anerd, anerd-client
-Replaces: anerd (<< 3.0), anerd-client (<< 3.0)
-Breaks: anerd (<< 3.0), anerd-client (<< 3.0)
-Description: seed the pseudo random number generator in virtual machines
- This client will connect to one or more Pollen (entropy-as-a-service)
- servers over an (optionally) encrypted connection and retrieve a random
- seed over HTTP or HTTPS.
- This is particularly useful at the first boot of cloud images and in
- virtual machines, to seed a system's random number generator at
- genesis, and is intended to supplement the /etc/init.d/urandom init script.

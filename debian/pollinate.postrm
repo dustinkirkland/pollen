@@ -1,9 +1,0 @@
-#!/bin/sh -e
-
-PKG="pollinate"
-if [ "$1" = "purge" ]; then
-	rm -rf /var/lib/$PKG /var/cache/$PKG /etc/default/$PKG
-	deluser --quiet --system $PKG > /dev/null || true
-fi
-
-#DEBHELPER#

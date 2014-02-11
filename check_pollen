@@ -17,8 +17,7 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-PKG="pollinate"
-TMPDIR=$(mktemp -d -t "${PKG}.XXXXXXXXXXXX")
+TMPDIR=$(mktemp -d -t "pollen.XXXXXXXXXXXX")
 trap "rm -rf ${TMPDIR} 2>/dev/null || true" EXIT HUP INT QUIT TERM
 
 pollinate -i -s localhost -b -d - >"$TMPDIR/out" 2>"$TMPDIR/err" && RC=0 || RC=$?
