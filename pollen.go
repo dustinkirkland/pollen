@@ -41,7 +41,6 @@ const (
 
 func handler(response http.ResponseWriter, request *http.Request) {
 	checksum := sha512.New()
-	checksum = sha512.New()
 	io.WriteString(checksum, request.FormValue("challenge"))
 	challenge_response := checksum.Sum(nil)
 	dev.Write(challenge_response)

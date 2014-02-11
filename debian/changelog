@@ -1,6 +1,7 @@
 pollen (4.2) unreleased; urgency=low
 
-  * UNRELEASED
+  * pollen.go:
+    - remove redundant line
 
  -- Dustin Kirkland <kirkland@ubuntu.com>  Tue, 11 Feb 2014 10:11:21 -0600
 
