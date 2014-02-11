@@ -1,6 +1,12 @@
 pollen (4.1) unreleased; urgency=low
 
-  * UNRELEASED
+  * debian/control:
+    - build on amd64 and i386 only
+    - these are the only builds I've been able to confirm when building
+      with golang-go
+    - note that this undoes the fix for LP: #1274074, but that's the
+      way it has to be, until either golang-go supports more architectures
+      or gccgo doesn't suck
 
  -- Dustin Kirkland <kirkland@ubuntu.com>  Tue, 11 Feb 2014 09:40:28 -0600
 
