@@ -1,3 +1,9 @@
+pollen (4.2) unreleased; urgency=low
+
+  * UNRELEASED
+
+ -- Dustin Kirkland <kirkland@ubuntu.com>  Tue, 11 Feb 2014 10:11:21 -0600
+
 pollen (4.1-0ubuntu1) trusty; urgency=low
 
   * debian/control:
