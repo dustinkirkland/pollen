@@ -1,4 +1,4 @@
-pollen (4.1) unreleased; urgency=low
+pollen (4.1-0ubuntu1) trusty; urgency=low
 
   * debian/control:
     - build on amd64 and i386 only
@@ -8,7 +8,7 @@ pollen (4.1) unreleased; urgency=low
       way it has to be, until either golang-go supports more architectures
       or gccgo doesn't suck
 
- -- Dustin Kirkland <kirkland@ubuntu.com>  Tue, 11 Feb 2014 09:40:28 -0600
+ -- Dustin Kirkland <kirkland@ubuntu.com>  Tue, 11 Feb 2014 10:11:19 -0600
 
 pollen (4.0-0ubuntu1) trusty; urgency=low
 
