@@ -4,6 +4,10 @@ pollen (4.4) unreleased; urgency=low
   * debian/control, debian/rules, Makefile, pollen.go, pollen_test.go:
     - add unit tests for pollen server
 
+  [ Dustin Kirkland ]
+  * debian/pollen.lintian-overrides:
+    - override expected Lintian gripes
+
  -- Dustin Kirkland <kirkland@ubuntu.com>  Mon, 17 Feb 2014 09:38:54 -0600
 
 pollen (4.3-0ubuntu1) trusty; urgency=low

@@ -1,0 +1,7 @@
+# Golang code expects to be statically linked and built in this way
+pollen: unstripped-binary-or-object
+pollen: hardening-no-relro
+# Lintian is unfortunately not debhelper-upstart savvy, Bug #717302
+pollen: postrm-does-not-call-updaterc.d-for-init.d-script
+pollen: init.d-script-not-marked-as-conffile
+pollen: init.d-script-not-included-in-package
