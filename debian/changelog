@@ -1,9 +1,9 @@
-pollen (4.3) unreleased; urgency=low
+pollen (4.3-0ubuntu1) trusty; urgency=low
 
   * check_pollen:
     - ensure that the nagios script uses the -r|--reseed option
 
- -- Dustin Kirkland <kirkland@ubuntu.com>  Tue, 11 Feb 2014 18:04:10 -0600
+ -- Dustin Kirkland <kirkland@ubuntu.com>  Mon, 17 Feb 2014 09:38:51 -0600
 
 pollen (4.2-0ubuntu1) trusty; urgency=low
 
