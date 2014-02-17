@@ -53,8 +53,11 @@ func handler(response http.ResponseWriter, request *http.Request) {
 	log.Info(fmt.Sprintf("Server sent response to [%s, %s] at [%v]", request.RemoteAddr, request.UserAgent(), time.Now().UnixNano()))
 }
 
-func main() {
+func init() {
 	log, _ = syslog.New(syslog.LOG_ERR, "pollen")
+}
+
+func main() {
 	dev, _ = os.Create(os.Args[3])
 	http.HandleFunc("/", handler)
 	http_port := fmt.Sprintf(":%s", os.Args[1])

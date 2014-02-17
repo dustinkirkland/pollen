@@ -1,7 +1,7 @@
 #!/usr/bin/make -f
 
 %:
-	dh $@
+	dh $@ GO_BUILD=gccgo
 
 override_dh_strip:
 	true

@@ -1,6 +1,8 @@
 pollen (4.4) unreleased; urgency=low
 
-  * UNRELEASED
+  [ Casey Marshall ]
+  * debian/control, debian/rules, Makefile, pollen.go, pollen_test.go:
+    - add unit tests for pollen server
 
  -- Dustin Kirkland <kirkland@ubuntu.com>  Mon, 17 Feb 2014 09:38:54 -0600
 
