@@ -1,6 +1,7 @@
 pollen (4.3) unreleased; urgency=low
 
-  * UNRELEASED
+  * check_pollen:
+    - ensure that the nagios script uses the -r|--reseed option
 
  -- Dustin Kirkland <kirkland@ubuntu.com>  Tue, 11 Feb 2014 18:04:10 -0600
 
