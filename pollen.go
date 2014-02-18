@@ -73,10 +73,10 @@ func main() {
 		fatalf("Cannot open device: %s\n", err)
 	}
 	http.HandleFunc("/", handler)
-	httpPort := fmt.Sprintf(":%s", os.Args[1])
-	httpsPort := fmt.Sprintf(":%s", os.Args[2])
-	go http.ListenAndServe(httpPort, nil)
-	go http.ListenAndServeTLS(httpsPort, "/etc/pollen/cert.pem", "/etc/pollen/key.pem", nil)
+	httpAddr := fmt.Sprintf(":%s", os.Args[1])
+	httpsAddr := fmt.Sprintf(":%s", os.Args[2])
+	go http.ListenAndServe(httpAddr, nil)
+	go http.ListenAndServeTLS(httpsAddr, "/etc/pollen/cert.pem", "/etc/pollen/key.pem", nil)
 	time.Sleep(1e9 * 1e9)
 	dev.Close()
 }
