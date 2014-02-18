@@ -59,6 +59,10 @@ func init() {
 }
 
 func main() {
+	if len(os.Args) != 4 {
+		fatalf("Usage: %s HTTP_PORT HTTPS_PORT DEVICE\n", os.Args[0])
+	}
+
 	dev, _ = os.Create(os.Args[3])
 	http.HandleFunc("/", handler)
 	httpPort := fmt.Sprintf(":%s", os.Args[1])
@@ -67,4 +71,9 @@ func main() {
 	go http.ListenAndServeTLS(httpsPort, "/etc/pollen/cert.pem", "/etc/pollen/key.pem", nil)
 	time.Sleep(1e9 * 1e9)
 	dev.Close()
+}
+
+func fatalf(format string, args ...interface{}) {
+	fmt.Fprintf(os.Stderr, format, args...)
+	os.Exit(1)
 }
