@@ -1,4 +1,4 @@
-pollen (4.5) unreleased; urgency=low
+pollen (4.5-0ubuntu1) trusty; urgency=low
 
   [ Caleb Spare ]
   * pollen.go, pollen_test.go:
@@ -12,7 +12,7 @@ pollen (4.5) unreleased; urgency=low
     - Change some naming in the test
     - Read from the provided device rather than always /dev/urandom
 
- -- Dustin Kirkland <kirkland@ubuntu.com>  Mon, 17 Feb 2014 12:51:54 -0600
+ -- Dustin Kirkland <kirkland@ubuntu.com>  Tue, 18 Feb 2014 14:50:52 -0600
 
 pollen (4.4-0ubuntu1) trusty; urgency=low
 
