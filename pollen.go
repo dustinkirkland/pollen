@@ -31,25 +31,26 @@ import (
 	"time"
 )
 
-var log *syslog.Writer
-
-var dev *os.File
+var (
+	log *syslog.Writer
+	dev *os.File
+)
 
 const (
-	DEFAULT_SIZE = 64
+	DefaultSize = 64
 )
 
 func handler(response http.ResponseWriter, request *http.Request) {
 	checksum := sha512.New()
 	io.WriteString(checksum, request.FormValue("challenge"))
-	challenge_response := checksum.Sum(nil)
-	dev.Write(challenge_response)
+	challengeResponse := checksum.Sum(nil)
+	dev.Write(challengeResponse)
 	log.Info(fmt.Sprintf("Server received challenge from [%s, %s] at [%v]", request.RemoteAddr, request.UserAgent(), time.Now().UnixNano()))
-	data := make([]byte, DEFAULT_SIZE)
-	io.ReadAtLeast(rand.Reader, data, DEFAULT_SIZE)
-	io.WriteString(checksum, string(data[:DEFAULT_SIZE]))
+	data := make([]byte, DefaultSize)
+	io.ReadAtLeast(rand.Reader, data, DefaultSize)
+	io.WriteString(checksum, string(data[:DefaultSize]))
 	seed := checksum.Sum(nil)
-	fmt.Fprintf(response, "%x\n%x\n", challenge_response, seed)
+	fmt.Fprintf(response, "%x\n%x\n", challengeResponse, seed)
 	log.Info(fmt.Sprintf("Server sent response to [%s, %s] at [%v]", request.RemoteAddr, request.UserAgent(), time.Now().UnixNano()))
 }
 
@@ -60,10 +61,10 @@ func init() {
 func main() {
 	dev, _ = os.Create(os.Args[3])
 	http.HandleFunc("/", handler)
-	http_port := fmt.Sprintf(":%s", os.Args[1])
-	https_port := fmt.Sprintf(":%s", os.Args[2])
-	go http.ListenAndServe(http_port, nil)
-	go http.ListenAndServeTLS(https_port, "/etc/pollen/cert.pem", "/etc/pollen/key.pem", nil)
+	httpPort := fmt.Sprintf(":%s", os.Args[1])
+	httpsPort := fmt.Sprintf(":%s", os.Args[2])
+	go http.ListenAndServe(httpPort, nil)
+	go http.ListenAndServeTLS(httpsPort, "/etc/pollen/cert.pem", "/etc/pollen/key.pem", nil)
 	time.Sleep(1e9 * 1e9)
 	dev.Close()
 }
