@@ -40,18 +40,18 @@ const (
 	DefaultSize = 64
 )
 
-func handler(response http.ResponseWriter, request *http.Request) {
+func handler(w http.ResponseWriter, r *http.Request) {
 	checksum := sha512.New()
-	io.WriteString(checksum, request.FormValue("challenge"))
+	io.WriteString(checksum, r.FormValue("challenge"))
 	challengeResponse := checksum.Sum(nil)
 	dev.Write(challengeResponse)
-	log.Info(fmt.Sprintf("Server received challenge from [%s, %s] at [%v]", request.RemoteAddr, request.UserAgent(), time.Now().UnixNano()))
+	log.Info(fmt.Sprintf("Server received challenge from [%s, %s] at [%v]", r.RemoteAddr, r.UserAgent(), time.Now().UnixNano()))
 	data := make([]byte, DefaultSize)
 	io.ReadAtLeast(rand.Reader, data, DefaultSize)
 	io.WriteString(checksum, string(data[:DefaultSize]))
 	seed := checksum.Sum(nil)
-	fmt.Fprintf(response, "%x\n%x\n", challengeResponse, seed)
-	log.Info(fmt.Sprintf("Server sent response to [%s, %s] at [%v]", request.RemoteAddr, request.UserAgent(), time.Now().UnixNano()))
+	fmt.Fprintf(w, "%x\n%x\n", challengeResponse, seed)
+	log.Info(fmt.Sprintf("Server sent response to [%s, %s] at [%v]", r.RemoteAddr, r.UserAgent(), time.Now().UnixNano()))
 }
 
 func init() {
