@@ -55,7 +55,11 @@ func handler(w http.ResponseWriter, r *http.Request) {
 }
 
 func init() {
-	log, _ = syslog.New(syslog.LOG_ERR, "pollen")
+	var err error
+	log, err = syslog.New(syslog.LOG_ERR, "pollen")
+	if err != nil {
+		fatalf("Cannot open syslog: %s\n", err)
+	}
 }
 
 func main() {
@@ -63,7 +67,11 @@ func main() {
 		fatalf("Usage: %s HTTP_PORT HTTPS_PORT DEVICE\n", os.Args[0])
 	}
 
-	dev, _ = os.Create(os.Args[3])
+	var err error
+	dev, err = os.Create(os.Args[3])
+	if err != nil {
+		fatalf("Cannot open device: %s\n", err)
+	}
 	http.HandleFunc("/", handler)
 	httpPort := fmt.Sprintf(":%s", os.Args[1])
 	httpsPort := fmt.Sprintf(":%s", os.Args[2])
