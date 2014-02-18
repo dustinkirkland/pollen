@@ -134,22 +134,22 @@ func TestUniqueChaining(t *testing.T) {
 	s := NewSuite(t)
 	defer s.TearDown()
 
-	challenge_resps := make(map[string]bool)
+	challengeResps := make(map[string]bool)
 	seeds := make(map[string]bool)
 	challenge := "the bassomatic '76"
 	for i := 0; i < UniqueChainRounds; i++ {
 		res, err := http.Get(fmt.Sprintf("%s/?challenge=%s", s.URL, url.QueryEscape(challenge)))
 		s.Assert(err == nil, "http client error:", err)
 
-		challenge_resp, seed, err := ReadResp(res.Body)
+		challengeResp, seed, err := ReadResp(res.Body)
 		err = res.Body.Close()
 		s.Assert(err == nil, "response error:", err)
 
-		challenge_resps[challenge_resp] = true
+		challengeResps[challengeResp] = true
 		seeds[seed] = true
 
 		challenge = seed
 	}
-	s.Assert(len(challenge_resps) == UniqueChainRounds, "non-unique challenge response")
+	s.Assert(len(challengeResps) == UniqueChainRounds, "non-unique challenge response")
 	s.Assert(len(seeds) == UniqueChainRounds, "non-unique seed response")
 }
