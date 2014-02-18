@@ -58,7 +58,8 @@ func init() {
 	var err error
 	log, err = syslog.New(syslog.LOG_ERR, "pollen")
 	if err != nil {
-		fatalf("Cannot open syslog: %s\n", err)
+		fmt.Fprintln(os.Stderr, "Cannot open syslog:", err)
+		os.Exit(1)
 	}
 }
 
@@ -72,16 +73,25 @@ func main() {
 	if err != nil {
 		fatalf("Cannot open device: %s\n", err)
 	}
+	defer dev.Close()
+
 	http.HandleFunc("/", handler)
 	httpAddr := fmt.Sprintf(":%s", os.Args[1])
-	httpsAddr := fmt.Sprintf(":%s", os.Args[2])
-	go http.ListenAndServe(httpAddr, nil)
-	go http.ListenAndServeTLS(httpsAddr, "/etc/pollen/cert.pem", "/etc/pollen/key.pem", nil)
-	time.Sleep(1e9 * 1e9)
-	dev.Close()
+	httpsAddr := fmt.Sprintf(":%s", os.Args[4])
+	go func() {
+		fatal(http.ListenAndServe(httpAddr, nil))
+	}()
+	fatal(http.ListenAndServeTLS(httpsAddr, "/etc/pollen/cert.pem", "/etc/pollen/key.pem", nil))
+}
+
+func fatal(args ...interface{}) {
+	log.Crit(fmt.Sprint(args...))
+	fmt.Fprint(os.Stderr, args...)
+	os.Exit(1)
 }
 
 func fatalf(format string, args ...interface{}) {
+	log.Emerg(fmt.Sprintf(format, args...))
 	fmt.Fprintf(os.Stderr, format, args...)
 	os.Exit(1)
 }
