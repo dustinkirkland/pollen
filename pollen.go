@@ -48,7 +48,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	log.Info(fmt.Sprintf("Server received challenge from [%s, %s] at [%v]", r.RemoteAddr, r.UserAgent(), time.Now().UnixNano()))
 	data := make([]byte, DefaultSize)
 	io.ReadAtLeast(rand.Reader, data, DefaultSize)
-	io.WriteString(checksum, string(data[:DefaultSize]))
+	checksum.Write(data[:DefaultSize])
 	seed := checksum.Sum(nil)
 	fmt.Fprintf(w, "%x\n%x\n", challengeResponse, seed)
 	log.Info(fmt.Sprintf("Server sent response to [%s, %s] at [%v]", r.RemoteAddr, r.UserAgent(), time.Now().UnixNano()))
