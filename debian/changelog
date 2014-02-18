@@ -1,6 +1,16 @@
 pollen (4.5) unreleased; urgency=low
 
-  * UNRELEASED
+  [ Caleb Spare ]
+  * pollen.go, pollen_test.go:
+    - Bring naming in line with Go conventions
+    - Use shorter parameter names for an http.HandlerFunc
+    - Remove an unnecessary string conversion
+    - Print useful error if wrong arguments are given rather than crashing
+    - Don't ignore errors
+    - Rename http[s]Port to http[s]Addr for accuracy
+    - Handle errors starting the http servers
+    - Change some naming in the test
+    - Read from the provided device rather than always /dev/urandom
 
  -- Dustin Kirkland <kirkland@ubuntu.com>  Mon, 17 Feb 2014 12:51:54 -0600
 

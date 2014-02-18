@@ -21,7 +21,6 @@ pollen: Entropy-as-a-Server web server
 package main
 
 import (
-	"crypto/rand"
 	"crypto/sha512"
 	"fmt"
 	"io"
@@ -31,39 +30,67 @@ import (
 	"time"
 )
 
-var log *syslog.Writer
-
-var dev *os.File
-
-const (
-	DEFAULT_SIZE = 64
+var (
+	log *syslog.Writer
+	dev *os.File
 )
 
-func handler(response http.ResponseWriter, request *http.Request) {
+const (
+	DefaultSize = 64
+)
+
+func handler(w http.ResponseWriter, r *http.Request) {
 	checksum := sha512.New()
-	io.WriteString(checksum, request.FormValue("challenge"))
-	challenge_response := checksum.Sum(nil)
-	dev.Write(challenge_response)
-	log.Info(fmt.Sprintf("Server received challenge from [%s, %s] at [%v]", request.RemoteAddr, request.UserAgent(), time.Now().UnixNano()))
-	data := make([]byte, DEFAULT_SIZE)
-	io.ReadAtLeast(rand.Reader, data, DEFAULT_SIZE)
-	io.WriteString(checksum, string(data[:DEFAULT_SIZE]))
+	io.WriteString(checksum, r.FormValue("challenge"))
+	challengeResponse := checksum.Sum(nil)
+	dev.Write(challengeResponse)
+	log.Info(fmt.Sprintf("Server received challenge from [%s, %s] at [%v]", r.RemoteAddr, r.UserAgent(), time.Now().UnixNano()))
+	data := make([]byte, DefaultSize)
+	io.ReadAtLeast(dev, data, DefaultSize)
+	checksum.Write(data[:DefaultSize])
 	seed := checksum.Sum(nil)
-	fmt.Fprintf(response, "%x\n%x\n", challenge_response, seed)
-	log.Info(fmt.Sprintf("Server sent response to [%s, %s] at [%v]", request.RemoteAddr, request.UserAgent(), time.Now().UnixNano()))
+	fmt.Fprintf(w, "%x\n%x\n", challengeResponse, seed)
+	log.Info(fmt.Sprintf("Server sent response to [%s, %s] at [%v]", r.RemoteAddr, r.UserAgent(), time.Now().UnixNano()))
 }
 
 func init() {
-	log, _ = syslog.New(syslog.LOG_ERR, "pollen")
+	var err error
+	log, err = syslog.New(syslog.LOG_ERR, "pollen")
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "Cannot open syslog:", err)
+		os.Exit(1)
+	}
 }
 
 func main() {
-	dev, _ = os.Create(os.Args[3])
+	if len(os.Args) != 4 {
+		fatalf("Usage: %s HTTP_PORT HTTPS_PORT DEVICE\n", os.Args[0])
+	}
+
+	var err error
+	dev, err = os.Create(os.Args[3])
+	if err != nil {
+		fatalf("Cannot open device: %s\n", err)
+	}
+	defer dev.Close()
+
 	http.HandleFunc("/", handler)
-	http_port := fmt.Sprintf(":%s", os.Args[1])
-	https_port := fmt.Sprintf(":%s", os.Args[2])
-	go http.ListenAndServe(http_port, nil)
-	go http.ListenAndServeTLS(https_port, "/etc/pollen/cert.pem", "/etc/pollen/key.pem", nil)
-	time.Sleep(1e9 * 1e9)
-	dev.Close()
+	httpAddr := fmt.Sprintf(":%s", os.Args[1])
+	httpsAddr := fmt.Sprintf(":%s", os.Args[2])
+	go func() {
+		fatal(http.ListenAndServe(httpAddr, nil))
+	}()
+	fatal(http.ListenAndServeTLS(httpsAddr, "/etc/pollen/cert.pem", "/etc/pollen/key.pem", nil))
+}
+
+func fatal(args ...interface{}) {
+	log.Crit(fmt.Sprint(args...))
+	fmt.Fprint(os.Stderr, args...)
+	os.Exit(1)
+}
+
+func fatalf(format string, args ...interface{}) {
+	log.Emerg(fmt.Sprintf(format, args...))
+	fmt.Fprintf(os.Stderr, format, args...)
+	os.Exit(1)
 }
