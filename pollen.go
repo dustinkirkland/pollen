@@ -21,7 +21,6 @@ pollen: Entropy-as-a-Server web server
 package main
 
 import (
-	"crypto/rand"
 	"crypto/sha512"
 	"fmt"
 	"io"
@@ -47,7 +46,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	dev.Write(challengeResponse)
 	log.Info(fmt.Sprintf("Server received challenge from [%s, %s] at [%v]", r.RemoteAddr, r.UserAgent(), time.Now().UnixNano()))
 	data := make([]byte, DefaultSize)
-	io.ReadAtLeast(rand.Reader, data, DefaultSize)
+	io.ReadAtLeast(dev, data, DefaultSize)
 	checksum.Write(data[:DefaultSize])
 	seed := checksum.Sum(nil)
 	fmt.Fprintf(w, "%x\n%x\n", challengeResponse, seed)
