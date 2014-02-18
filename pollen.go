@@ -40,8 +40,14 @@ const (
 )
 
 func handler(w http.ResponseWriter, r *http.Request) {
+	challenge := r.FormValue("challenge")
+	if challenge == "" {
+		http.Error(w, "No challenge query-string param provided", http.StatusBadRequest)
+		return
+	}
+
 	checksum := sha512.New()
-	io.WriteString(checksum, r.FormValue("challenge"))
+	io.WriteString(checksum, challenge)
 	challengeResponse := checksum.Sum(nil)
 	dev.Write(challengeResponse)
 	log.Info(fmt.Sprintf("Server received challenge from [%s, %s] at [%v]", r.RemoteAddr, r.UserAgent(), time.Now().UnixNano()))
