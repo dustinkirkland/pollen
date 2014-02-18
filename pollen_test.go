@@ -36,9 +36,6 @@ func (s *Suite) TearDown() {
 	s.Server.Close()
 }
 
-// EmptySha512 is the SHA512 digest of empty input. You can get this with sha512sum < /dev/null.
-const EmptySha512 = "cf83e1357eefb8bdf1542850d66d8007d620e4050b5715dc83f4a921d36ce9ce47d0d13c5d85f2b0ff8318d2877eec2f63b931bd47417a81a538327af927da3e"
-
 // MustScan scans a single token. There must be a token available and it must
 // scan successfully or an error is returned.
 func MustScan(s *bufio.Scanner) error {
@@ -79,11 +76,8 @@ func TestNoChallenge(t *testing.T) {
 	res, err := http.Get(s.URL)
 	s.Assert(err == nil, "http client error:", err)
 	defer res.Body.Close()
-	chal, seed, err := ReadResp(res.Body)
-	s.Assert(err == nil, "response error:", err)
-	s.Assert(chal == EmptySha512, "expected:", EmptySha512, "got:", chal)
-	s.Assert(len(chal) == len(EmptySha512), "invalid response length:", len(chal))
-	s.SanityCheck(chal, seed)
+	_, _, err = ReadResp(res.Body)
+	s.Assert(err != nil, "response error:", err)
 }
 
 func (s *Suite) SanityCheck(chal, seed string) {

@@ -1,6 +1,12 @@
 pollen (4.6) unreleased; urgency=low
 
-  * UNRELEASED
+  [ Caleb Spare ]
+  * pollen.go:
+    - Require the challenge query-string param to be provided
+
+  [ Dustin Kirkland ]
+  * pollen_test.go:
+    - update test to handle required challenge string
 
  -- Dustin Kirkland <kirkland@ubuntu.com>  Tue, 18 Feb 2014 14:50:56 -0600
 
