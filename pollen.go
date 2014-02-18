@@ -74,7 +74,7 @@ func main() {
 	}
 
 	var err error
-	dev, err = os.Create(os.Args[3])
+	dev, err = os.OpenFile(os.Args[3], os.O_RDWR, 0)
 	if err != nil {
 		fatalf("Cannot open device: %s\n", err)
 	}

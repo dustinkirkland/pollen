@@ -3,6 +3,7 @@ pollen (4.6) unreleased; urgency=low
   [ Caleb Spare ]
   * pollen.go:
     - Require the challenge query-string param to be provided
+    - don't create the random device, if it doesn't exist
 
   [ Dustin Kirkland ]
   * pollen_test.go:
