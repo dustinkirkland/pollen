@@ -18,3 +18,11 @@ DEVICE="/dev/urandom"
 # very high.
 # Default: 64
 BYTES=64
+
+# CERT is the location of the TLS certificate
+# Default: /etc/pollen/cert.pem
+CERT="/etc/pollen/cert.pem"
+
+# KEY is the location of the TLS key
+# Default: /etc/pollen/key.pem
+KEY="/etc/pollen/key.pem"

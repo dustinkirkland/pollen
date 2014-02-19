@@ -36,6 +36,8 @@ var (
 	httpsPort = flag.String("https-port", "443", "The HTTPS port on which to listen")
 	device    = flag.String("device", "/dev/urandom", "The device to use for reading and writing random data")
 	size      = flag.Int("bytes", 64, "The size in bytes to transmit and receive each time")
+	cert      = flag.String("cert", "/etc/pollen/cert.pem", "The full path to cert.pem")
+	key       = flag.String("key", "/etc/pollen/key.pem", "The full path to key.pem")
 	log *syslog.Writer
 	dev *os.File
 )
@@ -95,7 +97,7 @@ func main() {
 	go func() {
 		fatal(http.ListenAndServe(httpAddr, nil))
 	}()
-	fatal(http.ListenAndServeTLS(httpsAddr, "/etc/pollen/cert.pem", "/etc/pollen/key.pem", nil))
+	fatal(http.ListenAndServeTLS(httpsAddr, *cert, *key, nil))
 }
 
 func fatal(args ...interface{}) {

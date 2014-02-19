@@ -14,6 +14,6 @@ script
 	. /etc/default/pollen
 	# Ensure our device exists, and is a character device, before starting our server
 	if [ -c "$DEVICE" ]; then
-		exec pollen -http-port=$HTTP_PORT -https-port=$HTTPS_PORT -device=$DEVICE -bytes=$BYTES
+		exec pollen -http-port=$HTTP_PORT -https-port=$HTTPS_PORT -device=$DEVICE -bytes=$BYTES -cert=$CERT -key=$KEY
 	fi
 end script
