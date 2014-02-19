@@ -22,6 +22,7 @@ package main
 
 import (
 	"crypto/sha512"
+	"flag"
 	"fmt"
 	"io"
 	"log/syslog"
@@ -31,12 +32,12 @@ import (
 )
 
 var (
+	httpPort  = flag.String("http-port", "80", "The HTTP port on which to listen")
+	httpsPort = flag.String("https-port", "443", "The HTTPS port on which to listen")
+	device    = flag.String("device", "/dev/urandom", "The device to use for reading and writing random data")
+	size      = flag.Int("bytes", 64, "The size in bytes to transmit and receive each time")
 	log *syslog.Writer
 	dev *os.File
-)
-
-const (
-	DefaultSize = 64
 )
 
 func handler(w http.ResponseWriter, r *http.Request) {
@@ -51,9 +52,9 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	challengeResponse := checksum.Sum(nil)
 	dev.Write(challengeResponse)
 	log.Info(fmt.Sprintf("Server received challenge from [%s, %s] at [%v]", r.RemoteAddr, r.UserAgent(), time.Now().UnixNano()))
-	data := make([]byte, DefaultSize)
-	io.ReadAtLeast(dev, data, DefaultSize)
-	checksum.Write(data[:DefaultSize])
+	data := make([]byte, *size)
+	io.ReadAtLeast(dev, data, *size)
+	checksum.Write(data[:*size])
 	seed := checksum.Sum(nil)
 	fmt.Fprintf(w, "%x\n%x\n", challengeResponse, seed)
 	log.Info(fmt.Sprintf("Server sent response to [%s, %s] at [%v]", r.RemoteAddr, r.UserAgent(), time.Now().UnixNano()))
@@ -69,20 +70,21 @@ func init() {
 }
 
 func main() {
-	if len(os.Args) != 4 {
-		fatalf("Usage: %s HTTP_PORT HTTPS_PORT DEVICE\n", os.Args[0])
+	flag.Parse()
+	if *httpPort == "" && *httpsPort == "" {
+		fatal("Nothing to do if http and https are both disabled")
 	}
+	httpAddr := fmt.Sprintf(":%s", *httpPort)
+	httpsAddr := fmt.Sprintf(":%s", *httpsPort)
 
 	var err error
-	dev, err = os.OpenFile(os.Args[3], os.O_RDWR, 0)
+	dev, err = os.OpenFile(*device, os.O_RDWR, 0)
 	if err != nil {
 		fatalf("Cannot open device: %s\n", err)
 	}
 	defer dev.Close()
 
 	http.HandleFunc("/", handler)
-	httpAddr := fmt.Sprintf(":%s", os.Args[1])
-	httpsAddr := fmt.Sprintf(":%s", os.Args[2])
 	go func() {
 		fatal(http.ListenAndServe(httpAddr, nil))
 	}()

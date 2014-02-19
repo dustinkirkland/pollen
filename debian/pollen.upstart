@@ -14,14 +14,6 @@ script
 	. /etc/default/pollen
 	# Ensure our device exists, and is a character device, before starting our server
 	if [ -c "$DEVICE" ]; then
-		if [ -n "$HTTP_PORT" ] && [ -n "$HTTPS_PORT" ]; then
-			exec pollen $HTTP_PORT $HTTPS_PORT $DEVICE
-		elif [ -n "$HTTP_PORT" ] && [ -z "$HTTPS_PORT" ]; then
-			exec pollen $HTTP_PORT 0 $DEVICE
-		elif [ -z "$HTTP_PORT" ] && [ -n "$HTTPS_PORT" ]; then
-			exec pollen 0 $HTTPS_PORT $DEVICE
-		else
-			exec true
-		fi
+		exec pollen -http-port=$HTTP_PORT -https-port=$HTTPS_PORT -device=$DEVICE -bytes=$BYTES
 	fi
 end script

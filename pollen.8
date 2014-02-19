@@ -3,17 +3,17 @@
 \fBpollen\fP \- an Entropy-as-a-Service web server
 
 .SH SYNOPSIS
-\fBpollen\fP HTTP_PORT HTTPS_PORT DEVICE
+\fBpollen\fP [OPTION]...
 
 .SH OPTIONS
 
-\fBHTTP_PORT\fP - the http port on which to listen and serve clear text responses; use 0 to disable; default is 80
+\fB-http-port\fP - the HTTP port on which to listen and serve cleartext responses; use "" to disable; default is "80"
 
-\fBHTTPS_PORT\fP - the https port on which to listen and serve encrypted, TLS responses; use 0 to disable; default is 443
+\fB-https-port\fP - the HTTPS port on which to listen and serve encrypted, TLS responses; use "" to disable; default is "443"
 
-\fBDEVICE\FP - the device to use for reading and writing random data; default is \fI/dev/urandom\fP
+\fB-device\fP - the device to use for reading and writing random data; default is \fI/dev/urandom\fP
 
-\fBNOTE: All of these must be specified!!!\fP
+\fB-bytes\fP - the size, in bytes, to transmit and receive each time to peers or neighbors listening in the pool; default is 64
 
 .SH DESCRIPTION
 \fBpollen\fP is an Entropy-as-a-Service web server, providing random seeds over a TLS encrypted connection.
