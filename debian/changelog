@@ -8,6 +8,10 @@ pollen (4.6) unreleased; urgency=low
   [ Dustin Kirkland ]
   * pollen_test.go:
     - update test to handle required challenge string
+  * pollen.go:
+    - incorporate feedback from Adam Langley
+    - catch errors reading the random device
+    - add a note as to why we're checksumming the random seed
 
   [ Caleb Spare and Dustin Kirkland ]
   * debian/pollen.upstart, pollen.8, pollen.go:

@@ -46,15 +46,26 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "No challenge value provided", http.StatusBadRequest)
 		return
 	}
-
 	checksum := sha512.New()
 	io.WriteString(checksum, challenge)
 	challengeResponse := checksum.Sum(nil)
-	dev.Write(challengeResponse)
+	var err error
+	_, err = dev.Write(challengeResponse)
+	if err != nil {
+		/* Non-fatal error, but let's log this to syslog */
+		log.Err(fmt.Sprintf("Cannot write to random device at [%v]", time.Now().UnixNano()))
+	}
 	log.Info(fmt.Sprintf("Server received challenge from [%s, %s] at [%v]", r.RemoteAddr, r.UserAgent(), time.Now().UnixNano()))
 	data := make([]byte, *size)
-	io.ReadAtLeast(dev, data, *size)
+	_, err = io.ReadFull(dev, data)
+	if err != nil {
+		/* Fatal error for this connection, if we can't read from device */
+		log.Err(fmt.Sprintf("Cannot read from random device at [%v]", time.Now().UnixNano()))
+		http.Error(w, "Failed to read from random device", 500)
+		return
+	}
 	checksum.Write(data[:*size])
+	/* The checksum of the bytes from /dev/urandom is simply for print-ability, when debugging */
 	seed := checksum.Sum(nil)
 	fmt.Fprintf(w, "%x\n%x\n", challengeResponse, seed)
 	log.Info(fmt.Sprintf("Server sent response to [%s, %s] at [%v]", r.RemoteAddr, r.UserAgent(), time.Now().UnixNano()))
@@ -64,26 +75,22 @@ func init() {
 	var err error
 	log, err = syslog.New(syslog.LOG_ERR, "pollen")
 	if err != nil {
-		fmt.Fprintln(os.Stderr, "Cannot open syslog:", err)
-		os.Exit(1)
+		fatalf("Cannot open syslog:", err)
+	}
+	dev, err = os.OpenFile(*device, os.O_RDWR, 0)
+	if err != nil {
+		fatalf("Cannot open device: %s\n", err)
 	}
 }
 
 func main() {
 	flag.Parse()
+	defer dev.Close()
 	if *httpPort == "" && *httpsPort == "" {
 		fatal("Nothing to do if http and https are both disabled")
 	}
 	httpAddr := fmt.Sprintf(":%s", *httpPort)
 	httpsAddr := fmt.Sprintf(":%s", *httpsPort)
-
-	var err error
-	dev, err = os.OpenFile(*device, os.O_RDWR, 0)
-	if err != nil {
-		fatalf("Cannot open device: %s\n", err)
-	}
-	defer dev.Close()
-
 	http.HandleFunc("/", handler)
 	go func() {
 		fatal(http.ListenAndServe(httpAddr, nil))
