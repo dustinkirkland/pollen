@@ -12,6 +12,7 @@ pollen (4.6) unreleased; urgency=low
     - incorporate feedback from Adam Langley
     - catch errors reading the random device
     - add a note as to why we're checksumming the random seed
+    - update message when challenge empty
 
   [ Caleb Spare and Dustin Kirkland ]
   * debian/pollen.upstart, pollen.8, pollen.go:

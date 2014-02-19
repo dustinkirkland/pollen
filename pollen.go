@@ -45,7 +45,7 @@ var (
 func handler(w http.ResponseWriter, r *http.Request) {
 	challenge := r.FormValue("challenge")
 	if challenge == "" {
-		http.Error(w, "No challenge value provided", http.StatusBadRequest)
+		http.Error(w, "Please use the pollinate client.  'sudo apt-get install pollinate' or download from: https://bazaar.launchpad.net/~pollinate/pollinate/trunk/view/head:/pollinate", http.StatusBadRequest)
 		return
 	}
 	checksum := sha512.New()
