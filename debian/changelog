@@ -18,6 +18,14 @@ pollen (4.7) unreleased; urgency=low
     - This also fixes the help text for "-size" since it doesn't actually
       change how much content we send on the wire, but how much content we
       read from /dev/urandom (but it adds tests for that fact).
+    - go fmt, and some formatting tweaks
+    - actually do the right formatting
+    - use microsecond timing (ms was always 0)
+    - capture the length of time serving requests takes
+
+  [ Dustin Kirkland ]
+  * pollen.go:
+    - put brackets around request length of time value
 
  -- Dustin Kirkland <kirkland@ubuntu.com>  Tue, 18 Feb 2014 23:18:59 -0600
 
