@@ -42,7 +42,10 @@ var (
 	dev *os.File
 )
 
-func handler(w http.ResponseWriter, r *http.Request) {
+type PollenServer struct {
+}
+
+func (p *PollenServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	challenge := r.FormValue("challenge")
 	if challenge == "" {
 		http.Error(w, "Please use the pollinate client.  'sudo apt-get install pollinate' or download from: https://bazaar.launchpad.net/~pollinate/pollinate/trunk/view/head:/pollinate", http.StatusBadRequest)
@@ -91,9 +94,10 @@ func main() {
 	if *httpPort == "" && *httpsPort == "" {
 		fatal("Nothing to do if http and https are both disabled")
 	}
+	handler := &PollenServer{}
 	httpAddr := fmt.Sprintf(":%s", *httpPort)
 	httpsAddr := fmt.Sprintf(":%s", *httpsPort)
-	http.HandleFunc("/", handler)
+	http.Handle("/", handler)
 	go func() {
 		fatal(http.ListenAndServe(httpAddr, nil))
 	}()

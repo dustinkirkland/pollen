@@ -16,14 +16,8 @@ type Suite struct {
 	t *testing.T
 }
 
-type testHandler struct{}
-
-func (h testHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
-	handler(w, req)
-}
-
 func NewSuite(t *testing.T) *Suite {
-	return &Suite{httptest.NewServer(testHandler{}), t}
+	return &Suite{httptest.NewServer(&PollenServer{}), t}
 }
 
 func (s *Suite) Assert(v bool, args ...interface{}) {
