@@ -2,19 +2,21 @@ package main
 
 import (
 	"bufio"
+	"bytes"
+	"crypto/sha512"
 	"encoding/hex"
 	"fmt"
 	"io"
-	"os"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"os"
 	"testing"
 )
 
 type logEntry struct {
 	severity string
-	message string
+	message  string
 }
 
 type localLogger struct {
@@ -48,8 +50,8 @@ func (l *localLogger) Emerg(msg string) error {
 
 type Suite struct {
 	*httptest.Server
-	t *testing.T
-	dev *os.File
+	t      *testing.T
+	dev    io.ReadWriter
 	logger *localLogger
 }
 
@@ -58,6 +60,10 @@ func NewSuite(t *testing.T) *Suite {
 	if err != nil {
 		t.Fatalf("Cannot open device: %s\n", err)
 	}
+	return NewSuiteWithDev(t, dev)
+}
+
+func NewSuiteWithDev(t *testing.T, dev io.ReadWriter) *Suite {
 	logger := &localLogger{}
 	return &Suite{httptest.NewServer(&PollenServer{randomSource: dev, log: logger}), t, dev, logger}
 }
@@ -70,7 +76,9 @@ func (s *Suite) Assert(v bool, args ...interface{}) {
 
 func (s *Suite) TearDown() {
 	s.Server.Close()
-	s.dev.Close()
+	if closer, ok := s.dev.(io.Closer); ok {
+		closer.Close()
+	}
 }
 
 // MustScan scans a single token. There must be a token available and it must
@@ -206,4 +214,30 @@ func TestUniqueSeeds(t *testing.T) {
 	}
 	s.Assert(len(challengeResps) == 1, "more than one sha sum for the same challenge")
 	s.Assert(len(seeds) == UniqueChainRounds, "non-unique seed response")
+}
+
+// DilbertRandom is 64 bytes of pure nines
+var DilbertRandom = "ninenineninenineninenineninenineninenineninenineninenineninenine"
+var DilbertRandomSHA1 = "f73655d899f0f3d181d8e94b163e774a05abdd3b55123d0b9b2f18ad8c05c76e6fde93ba9dfc350acc2e378b59dd6962fc305b741f9a5b7edb16435e61a86b96"
+
+// TestCannedContent exercises the input and output removing the randomness of rand
+func TestCannedContent(t *testing.T) {
+	b := bytes.NewBufferString(DilbertRandom)
+	s := NewSuiteWithDev(t, b)
+	defer s.TearDown()
+
+	res, err := http.Get(s.URL + "?challenge=pork+chop+sandwiches")
+	s.Assert(err == nil, "http client error:", err)
+	defer res.Body.Close()
+	chal, seed, err := ReadResp(res.Body)
+	s.Assert(err == nil, "response error:", err)
+	s.Assert(chal == PorkChopSha512, "expected:", PorkChopSha512, "got:", chal)
+	s.SanityCheck(chal, seed)
+	s.Assert(seed != DilbertRandom, "got the raw random content")
+	s.Assert(seed != DilbertRandomSHA1, "got the sha of random content without the challenge")
+	expectedSum := sha512.New()
+	io.WriteString(expectedSum, "pork chop sandwiches")
+	io.WriteString(expectedSum, DilbertRandom)
+	expectedSeed := fmt.Sprintf("%x", expectedSum.Sum(nil))
+	s.Assert(seed == expectedSeed, "expected:", expectedSeed, "got:", seed)
 }

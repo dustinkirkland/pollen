@@ -39,10 +39,9 @@ var (
 	size      = flag.Int("bytes", 64, "The size in bytes to read from the random device")
 	cert      = flag.String("cert", "/etc/pollen/cert.pem", "The full path to cert.pem")
 	key       = flag.String("key", "/etc/pollen/key.pem", "The full path to key.pem")
-	log *syslog.Writer
 )
 
-// this matches the syslog.Writer functions 
+// this matches the syslog.Writer functions
 type logger interface {
 	Close() error
 	Info(string) error
@@ -54,7 +53,7 @@ type logger interface {
 type PollenServer struct {
 	// randomSource is usually /dev/urandom
 	randomSource io.ReadWriter
-	log logger
+	log          logger
 }
 
 func (p *PollenServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
