@@ -1,6 +1,23 @@
 pollen (4.7) unreleased; urgency=low
 
-  * UNRELEASED
+  [ John Arbash Meinel ]
+  * .gitignore, pollen.go, pollen_test.go:
+    - This changes the 'handler' from being just a func() using global
+      state to being a struct with local state.
+    - It then moves the things like dev and log to being members of the
+      struct, with interfaces that let us override them in the test suite.
+    - It then adds a bunch of tests about how we handle failures, errors,
+      logging, the size flag, etc.
+    - The interfaces also mean that we won't try to spam syslog while running
+      the test suite.
+    - Another small change is that if you do:
+         pollen -https-port=""
+      Then it won't try to bind to the HTTP port with a cert.
+    - Since I'm not the official source for pollen, it helped for testing at
+      least the HTTP requests manually.
+    - This also fixes the help text for "-size" since it doesn't actually
+      change how much content we send on the wire, but how much content we
+      read from /dev/urandom (but it adds tests for that fact).
 
  -- Dustin Kirkland <kirkland@ubuntu.com>  Tue, 18 Feb 2014 23:18:59 -0600
 
