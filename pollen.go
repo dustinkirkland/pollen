@@ -38,11 +38,12 @@ var (
 	size      = flag.Int("bytes", 64, "The size in bytes to transmit and receive each time")
 	cert      = flag.String("cert", "/etc/pollen/cert.pem", "The full path to cert.pem")
 	key       = flag.String("key", "/etc/pollen/key.pem", "The full path to key.pem")
-	log *syslog.Writer
-	dev *os.File
+	log       *syslog.Writer
+	dev       *os.File
 )
 
 func handler(w http.ResponseWriter, r *http.Request) {
+	startTime := time.Now()
 	challenge := r.FormValue("challenge")
 	if challenge == "" {
 		http.Error(w, "Please use the pollinate client.  'sudo apt-get install pollinate' or download from: https://bazaar.launchpad.net/~pollinate/pollinate/trunk/view/head:/pollinate", http.StatusBadRequest)
@@ -70,14 +71,14 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	/* The checksum of the bytes from /dev/urandom is simply for print-ability, when debugging */
 	seed := checksum.Sum(nil)
 	fmt.Fprintf(w, "%x\n%x\n", challengeResponse, seed)
-	log.Info(fmt.Sprintf("Server sent response to [%s, %s] at [%v]", r.RemoteAddr, r.UserAgent(), time.Now().UnixNano()))
+	log.Info(fmt.Sprintf("Server sent response to [%s, %s] at [%v] in %.3fs", r.RemoteAddr, r.UserAgent(), time.Now().UnixNano(), time.Since(startTime)))
 }
 
 func init() {
 	var err error
 	log, err = syslog.New(syslog.LOG_ERR, "pollen")
 	if err != nil {
-		fatalf("Cannot open syslog:", err)
+		fatalf("Cannot open syslog: %s\n", err)
 	}
 	dev, err = os.OpenFile(*device, os.O_RDWR, 0)
 	if err != nil {
@@ -102,6 +103,7 @@ func main() {
 
 func fatal(args ...interface{}) {
 	log.Crit(fmt.Sprint(args...))
+	args = append(args, "\n")
 	fmt.Fprint(os.Stderr, args...)
 	os.Exit(1)
 }
