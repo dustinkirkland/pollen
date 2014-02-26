@@ -60,6 +60,7 @@ type PollenServer struct {
 const usePollinateError = "Please use the pollinate client.  'sudo apt-get install pollinate' or download from: https://bazaar.launchpad.net/~pollinate/pollinate/trunk/view/head:/pollinate"
 
 func (p *PollenServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	startTime := time.Now()
 	challenge := r.FormValue("challenge")
 	if challenge == "" {
 		http.Error(w, usePollinateError, http.StatusBadRequest)
@@ -87,7 +88,7 @@ func (p *PollenServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	/* The checksum of the bytes from /dev/urandom is simply for print-ability, when debugging */
 	seed := checksum.Sum(nil)
 	fmt.Fprintf(w, "%x\n%x\n", challengeResponse, seed)
-	p.log.Info(fmt.Sprintf("Server sent response to [%s, %s] at [%v]", r.RemoteAddr, r.UserAgent(), time.Now().UnixNano()))
+	p.log.Info(fmt.Sprintf("Server sent response to [%s, %s] at [%v] in %.3fs", r.RemoteAddr, r.UserAgent(), time.Now().UnixNano(), time.Since(startTime)))
 }
 
 func main() {
@@ -97,7 +98,7 @@ func main() {
 	}
 	log, err := syslog.New(syslog.LOG_ERR, "pollen")
 	if err != nil {
-		fatalf("Cannot open syslog:", err)
+		fatalf("Cannot open syslog: %s\n", err)
 	}
 	defer log.Close()
 	dev, err := os.OpenFile(*device, os.O_RDWR, 0)
@@ -138,6 +139,7 @@ func (p *PollenServer) fatalf(format string, args ...interface{}) {
 }
 
 func fatal(args ...interface{}) {
+	args = append(args, "\n")
 	fmt.Fprint(os.Stderr, args...)
 	os.Exit(1)
 }
