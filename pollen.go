@@ -28,6 +28,7 @@ import (
 	"log/syslog"
 	"net/http"
 	"os"
+	"sync"
 	"time"
 )
 
@@ -103,16 +104,25 @@ func main() {
 	}
 	defer dev.Close()
 	handler := &PollenServer{randomSource: dev, log: log}
-	// TODO: jam 2014-02-26
-	// if httpPort == "" (or httpsPort) we shouldn't start the associated
-	// listener
-	httpAddr := fmt.Sprintf(":%s", *httpPort)
-	httpsAddr := fmt.Sprintf(":%s", *httpsPort)
 	http.Handle("/", handler)
-	go func() {
-		handler.fatal(http.ListenAndServe(httpAddr, nil))
-	}()
-	handler.fatal(http.ListenAndServeTLS(httpsAddr, *cert, *key, nil))
+	var httpListeners sync.WaitGroup
+	if *httpPort != "" {
+		httpAddr := fmt.Sprintf(":%s", *httpPort)
+		httpListeners.Add(1)
+		go func() {
+			handler.fatal(http.ListenAndServe(httpAddr, nil))
+			httpListeners.Done()
+		}()
+	}
+	if *httpsPort != "" {
+		httpsAddr := fmt.Sprintf(":%s", *httpsPort)
+		httpListeners.Add(1)
+		go func() {
+			handler.fatal(http.ListenAndServeTLS(httpsAddr, *cert, *key, nil))
+			httpListeners.Done()
+		}()
+	}
+	httpListeners.Wait()
 }
 
 func (p *PollenServer) fatal(args ...interface{}) {
