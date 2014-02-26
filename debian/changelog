@@ -1,4 +1,4 @@
-pollen (4.7) unreleased; urgency=low
+pollen (4.7-0ubuntu1) trusty; urgency=low
 
   [ John Arbash Meinel ]
   * .gitignore, pollen.go, pollen_test.go:
@@ -27,7 +27,7 @@ pollen (4.7) unreleased; urgency=low
   * pollen.go:
     - put brackets around request length of time value
 
- -- Dustin Kirkland <kirkland@ubuntu.com>  Tue, 18 Feb 2014 23:18:59 -0600
+ -- Dustin Kirkland <kirkland@ubuntu.com>  Wed, 26 Feb 2014 10:51:06 -0600
 
 pollen (4.6-0ubuntu1) trusty; urgency=low
 
