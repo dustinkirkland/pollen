@@ -88,7 +88,7 @@ func (p *PollenServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	/* The checksum of the bytes from /dev/urandom is simply for print-ability, when debugging */
 	seed := checksum.Sum(nil)
 	fmt.Fprintf(w, "%x\n%x\n", challengeResponse, seed)
-	p.log.Info(fmt.Sprintf("Server sent response to [%s, %s] at [%v] in %.3fs",
+	p.log.Info(fmt.Sprintf("Server sent response to [%s, %s] at [%v] in %.6fs",
 		r.RemoteAddr, r.UserAgent(), time.Now().UnixNano(), time.Since(startTime).Seconds()))
 }
 
@@ -102,6 +102,7 @@ func main() {
 		fatalf("Cannot open syslog: %s\n", err)
 	}
 	defer log.Close()
+	log.Info(fmt.Sprintf("pollen starting at [%v]", time.Now().UnixNano()))
 	dev, err := os.OpenFile(*device, os.O_RDWR, 0)
 	if err != nil {
 		fatalf("Cannot open device: %s\n", err)
