@@ -71,7 +71,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	/* The checksum of the bytes from /dev/urandom is simply for print-ability, when debugging */
 	seed := checksum.Sum(nil)
 	fmt.Fprintf(w, "%x\n%x\n", challengeResponse, seed)
-	log.Info(fmt.Sprintf("Server sent response to [%s, %s] at [%v] in %.3fs", r.RemoteAddr, r.UserAgent(), time.Now().UnixNano(), time.Since(startTime)))
+	log.Info(fmt.Sprintf("Server sent response to [%s, %s] at [%v] in %.3fs", r.RemoteAddr, r.UserAgent(), time.Now().UnixNano(), time.Since(startTime).Seconds()))
 }
 
 func init() {
