@@ -57,10 +57,12 @@ type PollenServer struct {
 	readSize     int
 }
 
+const usePollinateError = "Please use the pollinate client.  'sudo apt-get install pollinate' or download from: https://bazaar.launchpad.net/~pollinate/pollinate/trunk/view/head:/pollinate"
+
 func (p *PollenServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	challenge := r.FormValue("challenge")
 	if challenge == "" {
-		http.Error(w, "Please use the pollinate client.  'sudo apt-get install pollinate' or download from: https://bazaar.launchpad.net/~pollinate/pollinate/trunk/view/head:/pollinate", http.StatusBadRequest)
+		http.Error(w, usePollinateError, http.StatusBadRequest)
 		return
 	}
 	checksum := sha512.New()
@@ -78,7 +80,7 @@ func (p *PollenServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		/* Fatal error for this connection, if we can't read from device */
 		p.log.Err(fmt.Sprintf("Cannot read from random device at [%v]", time.Now().UnixNano()))
-		http.Error(w, "Failed to read from random device", 500)
+		http.Error(w, "Failed to read from random device", http.StatusInternalServerError)
 		return
 	}
 	checksum.Write(data)

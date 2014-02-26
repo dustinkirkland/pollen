@@ -123,8 +123,11 @@ func TestNoChallenge(t *testing.T) {
 	res, err := http.Get(s.URL)
 	s.Assert(err == nil, "http client error:", err)
 	defer res.Body.Close()
-	_, _, err = ReadResp(res.Body)
+	chal, seed, err := ReadResp(res.Body)
 	s.Assert(err != nil, "response error:", err)
+	s.Assert(res.StatusCode == http.StatusBadRequest, "didn't get Bad Request, got: ", res.Status)
+	s.Assert(chal == usePollinateError, "got the wrong error message:", chal)
+	s.Assert(seed == "", "got extra messages:", seed)
 }
 
 func (s *Suite) SanityCheck(chal, seed string) {
@@ -285,4 +288,78 @@ func TestExtraSize(t *testing.T) {
 	s.Assert(err == nil, "response err:", err)
 	remaining := b.Bytes()
 	s.Assert(len(remaining) == 0, "wrong number of bytes remaining, expected 0 got:", len(remaining))
+}
+
+type OnlyReader struct {
+	*bytes.Buffer
+}
+
+func (o *OnlyReader) Write([]byte) (int, error) {
+	return 0, &os.PathError{Op: "write", Path: "<mem>", Err: os.ErrPermission}
+}
+
+// We have to implement this because bytes.Buffer does, and io.WriteString can chose to use it
+func (o *OnlyReader) WriteString(string) (int, error) {
+	return 0, &os.PathError{Op: "write", Path: "<mem>", Err: os.ErrPermission}
+}
+
+// TestWriteFailure tests that if we can't write to our random device, we keep going
+func TestWriteFailure(t *testing.T) {
+	b := &OnlyReader{bytes.NewBufferString(DilbertRandom)}
+	s := NewSuiteWithDev(t, b)
+	defer s.TearDown()
+
+	res, err := http.Get(s.URL + "?challenge=xxx")
+	s.Assert(err == nil, "http client error:", err)
+	defer res.Body.Close()
+	chal, seed, err := ReadResp(res.Body)
+	s.Assert(err == nil, "response err:", err)
+	s.SanityCheck(chal, seed)
+	// Failing to write to the random device is logged
+	s.Assert(len(s.logger.logs) == 3, "expected 3 log messages, got:", len(s.logger.logs))
+	start := "Cannot write to random device at ["
+	s.Assert(s.logger.logs[0].severity == "err" &&
+		s.logger.logs[0].message[:len(start)] == start,
+		"didn't get the expected error message, got:", s.logger.logs[0])
+	start = "Server received challenge from ["
+	s.Assert(s.logger.logs[1].severity == "info" &&
+		s.logger.logs[1].message[:len(start)] == start,
+		"didn't get the expected error message, got:", s.logger.logs[1])
+	start = "Server sent response to ["
+	s.Assert(s.logger.logs[2].severity == "info" &&
+		s.logger.logs[2].message[:len(start)] == start,
+		"didn't get the expected error message, got:", s.logger.logs[2])
+}
+
+type FailingReader struct {
+	*bytes.Buffer
+}
+
+func (o *FailingReader) Read([]byte) (int, error) {
+	return 0, &os.PathError{Op: "read", Path: "<mem>", Err: os.ErrPermission}
+}
+
+// TestReadFailure tests that if we can't read from our random device it is immediately fatal
+func TestReadFailure(t *testing.T) {
+	// No random data to give to the client
+	b := &FailingReader{bytes.NewBufferString("")}
+	s := NewSuiteWithDev(t, b)
+	defer s.TearDown()
+
+	res, err := http.Get(s.URL + "?challenge=xxx")
+	s.Assert(err == nil, "http client error:", err)
+	defer res.Body.Close()
+	errMsg, _, err := ReadResp(res.Body)
+	s.Assert(err != nil, "response error:", err)
+	s.Assert(errMsg == "Failed to read from random device", "wrong error: ", errMsg)
+	s.Assert(res.StatusCode == http.StatusInternalServerError, "wrong status: ", res.Status)
+	s.Assert(len(s.logger.logs) == 2, "expected 2 log messages, got: ", len(s.logger.logs))
+	start := "Server received challenge from ["
+	s.Assert(s.logger.logs[0].severity == "info" &&
+		s.logger.logs[0].message[:len(start)] == start,
+		"didn't get the expected error message, got:", s.logger.logs[0])
+	start = "Cannot read from random device at ["
+	s.Assert(s.logger.logs[1].severity == "err" &&
+		s.logger.logs[1].message[:len(start)] == start,
+		"didn't get the expected error message, got:", s.logger.logs[1])
 }
