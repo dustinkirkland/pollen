@@ -41,9 +41,19 @@ var (
 	log *syslog.Writer
 )
 
+// this matches the syslog.Writer functions 
+type logger interface {
+	Close() error
+	Info(string) error
+	Err(string) error
+	Crit(string) error
+	Emerg(string) error
+}
+
 type PollenServer struct {
 	// randomSource is usually /dev/urandom
 	randomSource io.ReadWriter
+	log logger
 }
 
 func (p *PollenServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -59,14 +69,14 @@ func (p *PollenServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	_, err = p.randomSource.Write(challengeResponse)
 	if err != nil {
 		/* Non-fatal error, but let's log this to syslog */
-		log.Err(fmt.Sprintf("Cannot write to random device at [%v]", time.Now().UnixNano()))
+		p.log.Err(fmt.Sprintf("Cannot write to random device at [%v]", time.Now().UnixNano()))
 	}
-	log.Info(fmt.Sprintf("Server received challenge from [%s, %s] at [%v]", r.RemoteAddr, r.UserAgent(), time.Now().UnixNano()))
+	p.log.Info(fmt.Sprintf("Server received challenge from [%s, %s] at [%v]", r.RemoteAddr, r.UserAgent(), time.Now().UnixNano()))
 	data := make([]byte, *size)
 	_, err = io.ReadFull(p.randomSource, data)
 	if err != nil {
 		/* Fatal error for this connection, if we can't read from device */
-		log.Err(fmt.Sprintf("Cannot read from random device at [%v]", time.Now().UnixNano()))
+		p.log.Err(fmt.Sprintf("Cannot read from random device at [%v]", time.Now().UnixNano()))
 		http.Error(w, "Failed to read from random device", 500)
 		return
 	}
@@ -74,15 +84,7 @@ func (p *PollenServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	/* The checksum of the bytes from /dev/urandom is simply for print-ability, when debugging */
 	seed := checksum.Sum(nil)
 	fmt.Fprintf(w, "%x\n%x\n", challengeResponse, seed)
-	log.Info(fmt.Sprintf("Server sent response to [%s, %s] at [%v]", r.RemoteAddr, r.UserAgent(), time.Now().UnixNano()))
-}
-
-func init() {
-	var err error
-	log, err = syslog.New(syslog.LOG_ERR, "pollen")
-	if err != nil {
-		fatalf("Cannot open syslog:", err)
-	}
+	p.log.Info(fmt.Sprintf("Server sent response to [%s, %s] at [%v]", r.RemoteAddr, r.UserAgent(), time.Now().UnixNano()))
 }
 
 func main() {
@@ -90,12 +92,17 @@ func main() {
 	if *httpPort == "" && *httpsPort == "" {
 		fatal("Nothing to do if http and https are both disabled")
 	}
+	log, err := syslog.New(syslog.LOG_ERR, "pollen")
+	if err != nil {
+		fatalf("Cannot open syslog:", err)
+	}
+	defer log.Close()
 	dev, err := os.OpenFile(*device, os.O_RDWR, 0)
 	if err != nil {
 		fatalf("Cannot open device: %s\n", err)
 	}
 	defer dev.Close()
-	handler := &PollenServer{randomSource: dev}
+	handler := &PollenServer{randomSource: dev, log: log}
 	// TODO: jam 2014-02-26
 	// if httpPort == "" (or httpsPort) we shouldn't start the associated
 	// listener
@@ -103,19 +110,27 @@ func main() {
 	httpsAddr := fmt.Sprintf(":%s", *httpsPort)
 	http.Handle("/", handler)
 	go func() {
-		fatal(http.ListenAndServe(httpAddr, nil))
+		handler.fatal(http.ListenAndServe(httpAddr, nil))
 	}()
-	fatal(http.ListenAndServeTLS(httpsAddr, *cert, *key, nil))
+	handler.fatal(http.ListenAndServeTLS(httpsAddr, *cert, *key, nil))
+}
+
+func (p *PollenServer) fatal(args ...interface{}) {
+	p.log.Crit(fmt.Sprint(args...))
+	fatal(args...)
+}
+
+func (p *PollenServer) fatalf(format string, args ...interface{}) {
+	p.log.Emerg(fmt.Sprintf(format, args...))
+	fatalf(format, args...)
 }
 
 func fatal(args ...interface{}) {
-	log.Crit(fmt.Sprint(args...))
 	fmt.Fprint(os.Stderr, args...)
 	os.Exit(1)
 }
 
 func fatalf(format string, args ...interface{}) {
-	log.Emerg(fmt.Sprintf(format, args...))
 	fmt.Fprintf(os.Stderr, format, args...)
 	os.Exit(1)
 }

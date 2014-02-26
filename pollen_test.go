@@ -12,10 +12,45 @@ import (
 	"testing"
 )
 
+type logEntry struct {
+	severity string
+	message string
+}
+
+type localLogger struct {
+	logs []logEntry
+}
+
+func (l *localLogger) Close() error {
+	l.logs = append(l.logs, logEntry{"close", ""})
+	return nil
+}
+
+func (l *localLogger) Info(msg string) error {
+	l.logs = append(l.logs, logEntry{"info", msg})
+	return nil
+}
+
+func (l *localLogger) Err(msg string) error {
+	l.logs = append(l.logs, logEntry{"err", msg})
+	return nil
+}
+
+func (l *localLogger) Crit(msg string) error {
+	l.logs = append(l.logs, logEntry{"crit", msg})
+	return nil
+}
+
+func (l *localLogger) Emerg(msg string) error {
+	l.logs = append(l.logs, logEntry{"emerg", msg})
+	return nil
+}
+
 type Suite struct {
 	*httptest.Server
 	t *testing.T
 	dev *os.File
+	logger *localLogger
 }
 
 func NewSuite(t *testing.T) *Suite {
@@ -23,7 +58,8 @@ func NewSuite(t *testing.T) *Suite {
 	if err != nil {
 		t.Fatalf("Cannot open device: %s\n", err)
 	}
-	return &Suite{httptest.NewServer(&PollenServer{randomSource: dev}), t, dev}
+	logger := &localLogger{}
+	return &Suite{httptest.NewServer(&PollenServer{randomSource: dev, log: logger}), t, dev, logger}
 }
 
 func (s *Suite) Assert(v bool, args ...interface{}) {
