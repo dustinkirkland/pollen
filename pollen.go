@@ -54,6 +54,7 @@ type PollenServer struct {
 	// randomSource is usually /dev/urandom
 	randomSource io.ReadWriter
 	log          logger
+	readSize     int
 }
 
 func (p *PollenServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -72,7 +73,7 @@ func (p *PollenServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		p.log.Err(fmt.Sprintf("Cannot write to random device at [%v]", time.Now().UnixNano()))
 	}
 	p.log.Info(fmt.Sprintf("Server received challenge from [%s, %s] at [%v]", r.RemoteAddr, r.UserAgent(), time.Now().UnixNano()))
-	data := make([]byte, *size)
+	data := make([]byte, p.readSize)
 	_, err = io.ReadFull(p.randomSource, data)
 	if err != nil {
 		/* Fatal error for this connection, if we can't read from device */
@@ -80,7 +81,7 @@ func (p *PollenServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Failed to read from random device", 500)
 		return
 	}
-	checksum.Write(data[:*size])
+	checksum.Write(data)
 	/* The checksum of the bytes from /dev/urandom is simply for print-ability, when debugging */
 	seed := checksum.Sum(nil)
 	fmt.Fprintf(w, "%x\n%x\n", challengeResponse, seed)
@@ -102,7 +103,7 @@ func main() {
 		fatalf("Cannot open device: %s\n", err)
 	}
 	defer dev.Close()
-	handler := &PollenServer{randomSource: dev, log: log}
+	handler := &PollenServer{randomSource: dev, log: log, readSize: *size}
 	http.Handle("/", handler)
 	var httpListeners sync.WaitGroup
 	if *httpPort != "" {

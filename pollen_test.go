@@ -53,6 +53,7 @@ type Suite struct {
 	t      *testing.T
 	dev    io.ReadWriter
 	logger *localLogger
+	pollen *PollenServer
 }
 
 func NewSuite(t *testing.T) *Suite {
@@ -65,7 +66,8 @@ func NewSuite(t *testing.T) *Suite {
 
 func NewSuiteWithDev(t *testing.T, dev io.ReadWriter) *Suite {
 	logger := &localLogger{}
-	return &Suite{httptest.NewServer(&PollenServer{randomSource: dev, log: logger}), t, dev, logger}
+	handler := &PollenServer{randomSource: dev, log: logger, readSize: 64}
+	return &Suite{httptest.NewServer(handler), t, dev, logger, handler}
 }
 
 func (s *Suite) Assert(v bool, args ...interface{}) {
@@ -233,6 +235,8 @@ func TestCannedContent(t *testing.T) {
 	s.Assert(err == nil, "response error:", err)
 	s.Assert(chal == PorkChopSha512, "expected:", PorkChopSha512, "got:", chal)
 	s.SanityCheck(chal, seed)
+	// Check that the 'random' seed we got back was appropriately mixed
+	// with the challenge
 	s.Assert(seed != DilbertRandom, "got the raw random content")
 	s.Assert(seed != DilbertRandomSHA1, "got the sha of random content without the challenge")
 	expectedSum := sha512.New()
@@ -240,4 +244,45 @@ func TestCannedContent(t *testing.T) {
 	io.WriteString(expectedSum, DilbertRandom)
 	expectedSeed := fmt.Sprintf("%x", expectedSum.Sum(nil))
 	s.Assert(seed == expectedSeed, "expected:", expectedSeed, "got:", seed)
+	// We can also check that the challenge was correctly written to our random device
+	// b.Bytes() is the remainder of our buffer, and Buffer writes at the end
+	// This also shows that we didn't write the raw request
+	writtenBytesInHex := fmt.Sprintf("%x", string(b.Bytes()))
+	s.Assert(PorkChopSha512 == writtenBytesInHex, "expected:", PorkChopSha512, "got:", writtenBytesInHex)
+}
+
+// TestSizeMatters asserts that changing 'size' changes how many bytes we read
+func TestSizeMatters(t *testing.T) {
+	b := bytes.NewBufferString(DilbertRandom)
+	s := NewSuiteWithDev(t, b)
+	defer s.TearDown()
+
+	s.pollen.readSize = 32
+	res, err := http.Get(s.URL + "?challenge=xxx")
+	s.Assert(err == nil, "http client error:", err)
+	defer res.Body.Close()
+	_, _, err = ReadResp(res.Body)
+	s.Assert(err == nil, "response err:", err)
+	// If we set the readSize to 32 bytes, then we should only have that
+	// much data read from the buffer
+	remaining := b.Bytes()
+	// We have to add the 64 bytes that we wrote because of the challenge
+	s.Assert(len(remaining) == 32+64, "wrong number of bytes remaining, expected 96 got:", len(remaining))
+}
+
+// TestExtraSize asserts that you can make size 'big'
+func TestExtraSize(t *testing.T) {
+	b := bytes.NewBufferString(DilbertRandom)
+	s := NewSuiteWithDev(t, b)
+	defer s.TearDown()
+
+	// We only start with 64 bytes of "nine" but we add the challenge to the pool
+	s.pollen.readSize = 128
+	res, err := http.Get(s.URL + "?challenge=xxx")
+	s.Assert(err == nil, "http client error:", err)
+	defer res.Body.Close()
+	_, _, err = ReadResp(res.Body)
+	s.Assert(err == nil, "response err:", err)
+	remaining := b.Bytes()
+	s.Assert(len(remaining) == 0, "wrong number of bytes remaining, expected 0 got:", len(remaining))
 }
