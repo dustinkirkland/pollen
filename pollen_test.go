@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"io"
+	"os"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -14,10 +15,15 @@ import (
 type Suite struct {
 	*httptest.Server
 	t *testing.T
+	dev *os.File
 }
 
 func NewSuite(t *testing.T) *Suite {
-	return &Suite{httptest.NewServer(&PollenServer{}), t}
+	dev, err := os.OpenFile(*device, os.O_RDWR, 0)
+	if err != nil {
+		t.Fatalf("Cannot open device: %s\n", err)
+	}
+	return &Suite{httptest.NewServer(&PollenServer{randomSource: dev}), t, dev}
 }
 
 func (s *Suite) Assert(v bool, args ...interface{}) {
@@ -28,6 +34,7 @@ func (s *Suite) Assert(v bool, args ...interface{}) {
 
 func (s *Suite) TearDown() {
 	s.Server.Close()
+	s.dev.Close()
 }
 
 // MustScan scans a single token. There must be a token available and it must
@@ -139,5 +146,28 @@ func TestUniqueChaining(t *testing.T) {
 		challenge = seed
 	}
 	s.Assert(len(challengeResps) == UniqueChainRounds, "non-unique challenge response")
+	s.Assert(len(seeds) == UniqueChainRounds, "non-unique seed response")
+}
+
+// TestUniqueSeeds tests the uniqueness of responses to the same challenge
+func TestUniqueSeeds(t *testing.T) {
+	s := NewSuite(t)
+	defer s.TearDown()
+
+	challengeResps := make(map[string]bool)
+	seeds := make(map[string]bool)
+	challenge := "the bassomatic '76"
+	for i := 0; i < UniqueChainRounds; i++ {
+		res, err := http.Get(fmt.Sprintf("%s/?challenge=%s", s.URL, url.QueryEscape(challenge)))
+		s.Assert(err == nil, "http client error:", err)
+
+		challengeResp, seed, err := ReadResp(res.Body)
+		err = res.Body.Close()
+		s.Assert(err == nil, "response error:", err)
+
+		challengeResps[challengeResp] = true
+		seeds[seed] = true
+	}
+	s.Assert(len(challengeResps) == 1, "more than one sha sum for the same challenge")
 	s.Assert(len(seeds) == UniqueChainRounds, "non-unique seed response")
 }

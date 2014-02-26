@@ -39,10 +39,11 @@ var (
 	cert      = flag.String("cert", "/etc/pollen/cert.pem", "The full path to cert.pem")
 	key       = flag.String("key", "/etc/pollen/key.pem", "The full path to key.pem")
 	log *syslog.Writer
-	dev *os.File
 )
 
 type PollenServer struct {
+	// randomSource is usually /dev/urandom
+	randomSource io.ReadWriter
 }
 
 func (p *PollenServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -55,14 +56,14 @@ func (p *PollenServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	io.WriteString(checksum, challenge)
 	challengeResponse := checksum.Sum(nil)
 	var err error
-	_, err = dev.Write(challengeResponse)
+	_, err = p.randomSource.Write(challengeResponse)
 	if err != nil {
 		/* Non-fatal error, but let's log this to syslog */
 		log.Err(fmt.Sprintf("Cannot write to random device at [%v]", time.Now().UnixNano()))
 	}
 	log.Info(fmt.Sprintf("Server received challenge from [%s, %s] at [%v]", r.RemoteAddr, r.UserAgent(), time.Now().UnixNano()))
 	data := make([]byte, *size)
-	_, err = io.ReadFull(dev, data)
+	_, err = io.ReadFull(p.randomSource, data)
 	if err != nil {
 		/* Fatal error for this connection, if we can't read from device */
 		log.Err(fmt.Sprintf("Cannot read from random device at [%v]", time.Now().UnixNano()))
@@ -82,19 +83,22 @@ func init() {
 	if err != nil {
 		fatalf("Cannot open syslog:", err)
 	}
-	dev, err = os.OpenFile(*device, os.O_RDWR, 0)
-	if err != nil {
-		fatalf("Cannot open device: %s\n", err)
-	}
 }
 
 func main() {
 	flag.Parse()
-	defer dev.Close()
 	if *httpPort == "" && *httpsPort == "" {
 		fatal("Nothing to do if http and https are both disabled")
 	}
-	handler := &PollenServer{}
+	dev, err := os.OpenFile(*device, os.O_RDWR, 0)
+	if err != nil {
+		fatalf("Cannot open device: %s\n", err)
+	}
+	defer dev.Close()
+	handler := &PollenServer{randomSource: dev}
+	// TODO: jam 2014-02-26
+	// if httpPort == "" (or httpsPort) we shouldn't start the associated
+	// listener
 	httpAddr := fmt.Sprintf(":%s", *httpPort)
 	httpsAddr := fmt.Sprintf(":%s", *httpsPort)
 	http.Handle("/", handler)
