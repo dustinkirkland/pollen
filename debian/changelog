@@ -1,4 +1,4 @@
-pollen (4.8) unreleased; urgency=low
+pollen (4.8-0ubuntu1) trusty; urgency=low
 
   [ JuanJo Ciarlante and Dustin Kirkland ]
   * check_pollen:
@@ -6,7 +6,7 @@ pollen (4.8) unreleased; urgency=low
       server, runable as a non-privileged user, but not affecting the
       local PRNG
 
- -- Dustin Kirkland <kirkland@ubuntu.com>  Wed, 26 Feb 2014 10:51:09 -0600
+ -- Dustin Kirkland <kirkland@ubuntu.com>  Fri, 28 Feb 2014 11:13:09 -0600
 
 pollen (4.7-0ubuntu1) trusty; urgency=low
 
