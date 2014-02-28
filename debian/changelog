@@ -1,6 +1,10 @@
 pollen (4.8) unreleased; urgency=low
 
-  * UNRELEASED
+  [ JuanJo Ciarlante and Dustin Kirkland ]
+  * check_pollen:
+    - use the new -t|--testing flag, to verify communications with the
+      server, runable as a non-privileged user, but not affecting the
+      local PRNG
 
  -- Dustin Kirkland <kirkland@ubuntu.com>  Wed, 26 Feb 2014 10:51:09 -0600
 
