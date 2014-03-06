@@ -1,6 +1,7 @@
 pollen (4.9) unreleased; urgency=low
 
-  * UNRELEASED
+  * debian/rules: LP: #1288807
+    - fix FTBFS, build using golang 'go build' rather than gccgo
 
  -- Dustin Kirkland <kirkland@ubuntu.com>  Fri, 28 Feb 2014 11:13:11 -0600
 
