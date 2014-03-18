@@ -1,6 +1,10 @@
 pollen (4.11) unreleased; urgency=medium
 
-  * UNRELEASED
+  * pollen_test.go:
+    - fix FTBFS
+    - hardcode device to /dev/urandom in unit tests, otherwise, our
+      entropy starved vm-based builders will fail the unit tests
+      and fail the build
 
  -- Dustin Kirkland <kirkland@ubuntu.com>  Tue, 18 Mar 2014 16:31:50 +0900
 

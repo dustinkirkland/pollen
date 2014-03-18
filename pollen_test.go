@@ -57,7 +57,8 @@ type Suite struct {
 }
 
 func NewSuite(t *testing.T) *Suite {
-	dev, err := os.OpenFile(*device, os.O_RDWR, 0)
+	/* hardcode /dev/urandom for testing purposes */
+	dev, err := os.OpenFile("/dev/urandom", os.O_RDWR, 0)
 	if err != nil {
 		t.Fatalf("Cannot open device: %s\n", err)
 	}
