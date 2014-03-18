@@ -1,6 +1,12 @@
 pollen (4.10) unreleased; urgency=low
 
-  * UNRELEASED
+  * debian/control, debian/pollen.default, pollen.go, usr.bin.pollen:
+    - LP: #1293958
+    - suggest rng-tools (universe), which is needed to leverage tpm for
+      /dev/random entropy
+    - change default entropy source for pollen server to /dev/random
+    - update inline configuration documentation to reflect reality
+    - add rw of /dev/random to our apparmor whitelist
 
  -- Dustin Kirkland <kirkland@ubuntu.com>  Thu, 06 Mar 2014 09:24:51 -0600
 

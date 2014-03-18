@@ -35,7 +35,7 @@ import (
 var (
 	httpPort  = flag.String("http-port", "80", "The HTTP port on which to listen")
 	httpsPort = flag.String("https-port", "443", "The HTTPS port on which to listen")
-	device    = flag.String("device", "/dev/urandom", "The device to use for reading and writing random data")
+	device    = flag.String("device", "/dev/random", "The device to use for reading and writing random data")
 	size      = flag.Int("bytes", 64, "The size in bytes to read from the random device")
 	cert      = flag.String("cert", "/etc/pollen/cert.pem", "The full path to cert.pem")
 	key       = flag.String("key", "/etc/pollen/key.pem", "The full path to key.pem")
@@ -51,7 +51,7 @@ type logger interface {
 }
 
 type PollenServer struct {
-	// randomSource is usually /dev/urandom
+	// randomSource is usually /dev/random or /dev/urandom
 	randomSource io.ReadWriter
 	log          logger
 	readSize     int
@@ -85,7 +85,7 @@ func (p *PollenServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	checksum.Write(data)
-	/* The checksum of the bytes from /dev/urandom is simply for print-ability, when debugging */
+	/* The checksum of the bytes from /dev/random is simply for print-ability, when debugging */
 	seed := checksum.Sum(nil)
 	fmt.Fprintf(w, "%x\n%x\n", challengeResponse, seed)
 	p.log.Info(fmt.Sprintf("Server sent response to [%s, %s] at [%v] in [%.6fs]",

@@ -8,10 +8,11 @@ HTTP_PORT="80"
 # Default: 443
 HTTPS_PORT="443"
 
-# DEVICE is the source of randomness for entropy donated to the pool,
+# DEVICE is the source of randomness for entropy read by the server,
 # and the destination for received and whitened entropy.
-# Default: /dev/urandom
-DEVICE="/dev/urandom"
+# Default: /dev/random
+# Alternative: /dev/urandom
+DEVICE="/dev/random"
 
 # BYTES is the size in bytes to transmit and receive each time, to peers
 # or neighbors listening for broadcast in the pool.  It is rude to set this

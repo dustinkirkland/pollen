@@ -15,6 +15,7 @@
   #include <abstractions/base>
   #include <abstractions/nameservice>
   capability net_bind_service,
+  /dev/random rw,
   /dev/urandom rw,
   /etc/pollen/* r,
   /proc/sys/net/core/somaxconn r,
