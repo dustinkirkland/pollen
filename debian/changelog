@@ -1,4 +1,4 @@
-pollen (4.10) unreleased; urgency=low
+pollen (4.10-0ubuntu1) trusty; urgency=low
 
   * debian/control, debian/pollen.default, pollen.go, usr.bin.pollen:
     - LP: #1293958
@@ -8,7 +8,7 @@ pollen (4.10) unreleased; urgency=low
     - update inline configuration documentation to reflect reality
     - add rw of /dev/random to our apparmor whitelist
 
- -- Dustin Kirkland <kirkland@ubuntu.com>  Thu, 06 Mar 2014 09:24:51 -0600
+ -- Dustin Kirkland <kirkland@ubuntu.com>  Tue, 18 Mar 2014 16:31:47 +0900
 
 pollen (4.9-0ubuntu1) trusty; urgency=low
 
