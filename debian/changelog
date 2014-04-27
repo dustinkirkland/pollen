@@ -8,6 +8,8 @@ pollen (4.12) unreleased; urgency=medium
       the localhost with a self-signed cert
   * README:
     - update docs;  pollinate no longer runs daily by default
+  * README:
+    - update some docs
 
  -- Dustin Kirkland <kirkland@ubuntu.com>  Tue, 18 Mar 2014 22:56:22 +0900
 

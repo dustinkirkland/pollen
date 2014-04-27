@@ -48,7 +48,7 @@ An entropy request should optimally contain a POST argument:
 
 The challenge POST argument is a hex-encoded sha512sum(1) value, which is 128 ASCII characters of [0-9a-f].  Regardless of the value of the 'challenge', the Pollen server will treat the input as a string and calculate the sha512sum.  This ensures that any malicious input from a deviant client is whitened to a simple hash before the server operates upon it.
 
-The server then responds to the client with the sha512 checksum of the challenge on the first line, and the second line of the response will contain the sha512sum of the challenge.
+The server then responds to the client with the sha512 checksum of the client's challenge on the first line, and the second line of the response will contain a sha512sum of 64 bytes of entropy.  This second line is what the client can use as a random seed.
 
 The client verifies the challenge/response, which is intended to help ensure that this communication between the client and server is a custom response, and that the server actually "did some work", and thus affected the entropy state on the server.
 
