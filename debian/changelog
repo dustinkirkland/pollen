@@ -1,3 +1,9 @@
+pollen (4.13) unreleased; urgency=medium
+
+  * UNRELEASED
+
+ -- Dustin Kirkland <kirkland@ubuntu.com>  Wed, 23 Jul 2014 00:08:55 -0700
+
 pollen (4.12-0ubuntu1) utopic; urgency=medium
 
   * debian/control:
