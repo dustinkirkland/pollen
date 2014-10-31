@@ -1,8 +1,9 @@
-pollen (4.14) unreleased; urgency=medium
+pollen (4.14-0ubuntu1) vivid; urgency=medium
 
-  * UNRELEASED
+  * pollen.go: LP: #1383738
+    - remove SSLv3 support
 
- -- Dustin Kirkland <kirkland@ubuntu.com>  Fri, 31 Oct 2014 16:08:42 -0500
+ -- Dustin Kirkland <kirkland@ubuntu.com>  Fri, 31 Oct 2014 16:31:23 -0500
 
 pollen (4.13-0ubuntu1) vivid; urgency=medium
 

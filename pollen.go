@@ -22,6 +22,7 @@ package main
 
 import (
 	"crypto/sha512"
+	"crypto/tls"
 	"flag"
 	"fmt"
 	"io"
@@ -123,7 +124,9 @@ func main() {
 		httpsAddr := fmt.Sprintf(":%s", *httpsPort)
 		httpListeners.Add(1)
 		go func() {
-			handler.fatal(http.ListenAndServeTLS(httpsAddr, *cert, *key, nil))
+			config := &tls.Config{MinVersion: tls.VersionTLS10}
+			server := &http.Server{Addr: httpsAddr, Handler: handler, TLSConfig: config}
+			handler.fatal(server.ListenAndServeTLS(*cert, *key))
 			httpListeners.Done()
 		}()
 	}
