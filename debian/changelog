@@ -1,3 +1,9 @@
+pollen (4.14) unreleased; urgency=medium
+
+  * UNRELEASED
+
+ -- Dustin Kirkland <kirkland@ubuntu.com>  Fri, 31 Oct 2014 16:08:42 -0500
+
 pollen (4.13-0ubuntu1) vivid; urgency=medium
 
   * debian/pollen-restart.upstart, debian/pollen.upstart, debian/rules:
