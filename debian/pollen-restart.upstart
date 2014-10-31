@@ -1,0 +1,8 @@
+# pollen restart when rsyslog restarts
+
+description	"Restart Pollen Entropy-as-a-Service"
+author		"Dustin Kirkland <dustin.kirkland@gmail.com>"
+
+start on started rsyslog
+
+exec restart pollen

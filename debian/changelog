@@ -1,6 +1,12 @@
 pollen (4.13) unreleased; urgency=medium
 
-  * UNRELEASED
+  * debian/pollen-restart.upstart, debian/pollen.upstart, debian/rules:
+    - LP: #1386052
+    - add a new upstart job that restarts pollen any time the rsyslog server
+      is restarted
+    - this is necessary to work around a bug in the golang syslog library
+      where syslog restarts break logging
+      + https://code.google.com/p/go/issues/detail?id=2264#c8
 
  -- Dustin Kirkland <kirkland@ubuntu.com>  Wed, 23 Jul 2014 00:08:55 -0700
 
