@@ -1,6 +1,10 @@
 pollen (4.15) unreleased; urgency=medium
 
-  * UNRELEASED
+  [ Didier Roche ]
+  * debian/control, debian/pollen.service, debian/rules:
+    - Add systemd unit, following similar restart on failure and device
+    checking logic
+    - Bump Standards-Version
 
  -- Dustin Kirkland <kirkland@ubuntu.com>  Fri, 31 Oct 2014 16:31:27 -0500
 

@@ -1,0 +1,14 @@
+[Unit]
+Description=Entropy as a Service
+After=network.target
+
+[Service]
+User=pollen
+EnvironmentFile=/etc/default/pollen
+# Ensure our device exists, and is a character device
+ExecStartPre=/bin/sh -c '[ -c "$DEVICE" ]'
+ExecStart=/usr/bin/pollen -http-port=$HTTP_PORT -https-port=$HTTPS_PORT -device=$DEVICE -bytes=$BYTES -cert=$CERT -key=$KEY
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
