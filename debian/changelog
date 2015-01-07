@@ -1,4 +1,4 @@
-pollen (4.15) unreleased; urgency=medium
+pollen (4.15-0ubuntu1) vivid; urgency=medium
 
   [ Didier Roche ]
   * debian/control, debian/pollen.service, debian/rules:
@@ -6,7 +6,7 @@ pollen (4.15) unreleased; urgency=medium
     checking logic
     - Bump Standards-Version
 
- -- Dustin Kirkland <kirkland@ubuntu.com>  Fri, 31 Oct 2014 16:31:27 -0500
+ -- Dustin Kirkland <kirkland@ubuntu.com>  Wed, 07 Jan 2015 13:06:05 -0600
 
 pollen (4.14-0ubuntu1) vivid; urgency=medium
 
