@@ -1,6 +1,8 @@
 pollen (4.16) unreleased; urgency=medium
 
-  * UNRELEASED
+  [ Matthias Klose ]
+  * debian/control:
+    - Build everywhere
 
  -- Dustin Kirkland <kirkland@ubuntu.com>  Wed, 07 Jan 2015 13:06:10 -0600
 

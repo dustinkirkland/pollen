@@ -10,7 +10,7 @@ Standards-Version: 3.9.6
 Homepage: http://launchpad.net/pollen
 
 Package: pollen
-Architecture: amd64 i386
+Architecture: any
 Depends: ${misc:Depends}, ${shlibs:Depends}, libcap2-bin, ent, adduser
 Recommends: pollinate, rng-tools
 Suggests: apparmor (>= 2.3)
