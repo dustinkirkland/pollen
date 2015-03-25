@@ -1,10 +1,10 @@
-pollen (4.16) unreleased; urgency=medium
+pollen (4.16-0ubuntu1) vivid; urgency=medium
 
   [ Matthias Klose ]
   * debian/control:
     - Build everywhere
 
- -- Dustin Kirkland <kirkland@ubuntu.com>  Wed, 07 Jan 2015 13:06:10 -0600
+ -- Dustin Kirkland <kirkland@ubuntu.com>  Wed, 25 Mar 2015 09:44:01 -0500
 
 pollen (4.15-0ubuntu1) vivid; urgency=medium
 
