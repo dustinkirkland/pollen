@@ -4,6 +4,8 @@ pollen (4.17) unreleased; urgency=medium
     - clear out certificates on purge
   * debian/pollen.default:
     - quote the variable definition, for consistency
+  * debian/pollen.postinst:
+    - fix ssl cert generation, country must be <2 chars
 
  -- Dustin Kirkland <kirkland@ubuntu.com>  Wed, 25 Mar 2015 09:44:03 -0500
 
