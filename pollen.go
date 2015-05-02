@@ -26,9 +26,11 @@ import (
 	"flag"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"log/syslog"
 	"net/http"
 	"os"
+	"strings"
 	"sync"
 	"time"
 )
@@ -62,6 +64,7 @@ const usePollinateError = "Please use the pollinate client.  'sudo apt-get insta
 
 func (p *PollenServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	startTime := time.Now()
+	var avail []byte
 	challenge := r.FormValue("challenge")
 	if challenge == "" {
 		http.Error(w, usePollinateError, http.StatusBadRequest)
@@ -76,7 +79,14 @@ func (p *PollenServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		/* Non-fatal error, but let's log this to syslog */
 		p.log.Err(fmt.Sprintf("Cannot write to random device at [%v]", time.Now().UnixNano()))
 	}
-	p.log.Info(fmt.Sprintf("Server received challenge from [%s, %s] at [%v]", r.RemoteAddr, r.UserAgent(), time.Now().UnixNano()))
+	/* Record entropy bits before */
+	avail, err = ioutil.ReadFile("/proc/sys/kernel/random/entropy_avail")
+	if err != nil {
+		/* Non-fatal error */
+		p.log.Err(fmt.Sprintf("Cannot record entropy bits at [%v]", time.Now().UnixNano()))
+		avail = []byte{'?'}
+	}
+	p.log.Info(fmt.Sprintf("Server received challenge from [%s, %s] at [%v] with [e%s]", r.RemoteAddr, r.UserAgent(), time.Now().UnixNano(), strings.Split(string(avail), "\n")[0]))
 	data := make([]byte, p.readSize)
 	_, err = io.ReadFull(p.randomSource, data)
 	if err != nil {
@@ -89,8 +99,15 @@ func (p *PollenServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	/* The checksum of the bytes from /dev/random is simply for print-ability, when debugging */
 	seed := checksum.Sum(nil)
 	fmt.Fprintf(w, "%x\n%x\n", challengeResponse, seed)
-	p.log.Info(fmt.Sprintf("Server sent response to [%s, %s] at [%v] in [%.6fs]",
-		r.RemoteAddr, r.UserAgent(), time.Now().UnixNano(), time.Since(startTime).Seconds()))
+	/* Record entropy bits after */
+	avail, err = ioutil.ReadFile("/proc/sys/kernel/random/entropy_avail")
+	if err != nil {
+		/* Non-fatal error */
+		p.log.Err(fmt.Sprintf("Cannot record entropy bits at [%v]", time.Now().UnixNano()))
+		avail = []byte{'?'}
+	}
+	p.log.Info(fmt.Sprintf("Server sent response to [%s, %s] at [%v] in [%.6fs] with [e%s]",
+		r.RemoteAddr, r.UserAgent(), time.Now().UnixNano(), time.Since(startTime).Seconds(), strings.Split(string(avail), "\n")[0]))
 }
 
 func main() {

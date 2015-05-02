@@ -8,6 +8,8 @@ pollen (4.17) unreleased; urgency=medium
     - fix ssl cert generation, country must be <2 chars
   * debian/pollen.service:
     - put braces around environment variables; required to work at all
+  * pollen.go, usr.bin.pollen:
+    - log the entropy bits before and after the transaction
 
  -- Dustin Kirkland <kirkland@ubuntu.com>  Wed, 25 Mar 2015 09:44:03 -0500
 
