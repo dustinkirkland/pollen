@@ -18,7 +18,7 @@ DEVICE="/dev/random"
 # or neighbors listening for broadcast in the pool.  It is rude to set this
 # very high.
 # Default: 64
-BYTES=64
+BYTES="64"
 
 # CERT is the location of the TLS certificate
 # Default: /etc/pollen/cert.pem

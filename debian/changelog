@@ -2,6 +2,8 @@ pollen (4.17) unreleased; urgency=medium
 
   * debian/pollen.postrm:
     - clear out certificates on purge
+  * debian/pollen.default:
+    - quote the variable definition, for consistency
 
  -- Dustin Kirkland <kirkland@ubuntu.com>  Wed, 25 Mar 2015 09:44:03 -0500
 
