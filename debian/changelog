@@ -1,4 +1,4 @@
-pollen (4.17) unreleased; urgency=medium
+pollen (4.17-0ubuntu1) unstable; urgency=medium
 
   * debian/pollen.postrm:
     - clear out certificates on purge
@@ -11,7 +11,7 @@ pollen (4.17) unreleased; urgency=medium
   * pollen.go, usr.bin.pollen:
     - log the entropy bits before and after the transaction
 
- -- Dustin Kirkland <kirkland@ubuntu.com>  Wed, 25 Mar 2015 09:44:03 -0500
+ -- Dustin Kirkland <kirkland@ubuntu.com>  Sat, 02 May 2015 18:39:13 -0500
 
 pollen (4.16-0ubuntu1) vivid; urgency=medium
 
