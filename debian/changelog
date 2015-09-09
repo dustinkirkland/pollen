@@ -1,3 +1,9 @@
+pollen (4.19) unreleased; urgency=medium
+
+  * UNRELEASED
+
+ -- Dustin Kirkland <kirkland@ubuntu.com>  Wed, 09 Sep 2015 15:22:58 -0500
+
 pollen (4.18-0ubuntu1) wily; urgency=medium
 
   * pollen.go:
