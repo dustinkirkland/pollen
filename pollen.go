@@ -86,7 +86,7 @@ func (p *PollenServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		p.log.Err(fmt.Sprintf("Cannot record entropy bits at [%v]", time.Now().UnixNano()))
 		avail = []byte{'?'}
 	}
-	p.log.Info(fmt.Sprintf("Server received challenge from [%s, %s] at [%v] with [e%s]", r.RemoteAddr, r.UserAgent(), time.Now().UnixNano(), strings.Split(string(avail), "\n")[0]))
+	p.log.Info(fmt.Sprintf("Server received challenge from [%s, %s] at [%v] with [e%s] available", r.RemoteAddr, r.UserAgent(), time.Now().UnixNano(), strings.Split(string(avail), "\n")[0]))
 	data := make([]byte, p.readSize)
 	_, err = io.ReadFull(p.randomSource, data)
 	if err != nil {
@@ -106,7 +106,7 @@ func (p *PollenServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		p.log.Err(fmt.Sprintf("Cannot record entropy bits at [%v]", time.Now().UnixNano()))
 		avail = []byte{'?'}
 	}
-	p.log.Info(fmt.Sprintf("Server sent response to [%s, %s] at [%v] in [%.6fs] with [e%s]",
+	p.log.Info(fmt.Sprintf("Server sent response to [%s, %s] at [%v] in [%.6fs] with [e%s] available",
 		r.RemoteAddr, r.UserAgent(), time.Now().UnixNano(), time.Since(startTime).Seconds(), strings.Split(string(avail), "\n")[0]))
 }
 
