@@ -1,6 +1,7 @@
 pollen (4.19) unreleased; urgency=medium
 
-  * UNRELEASED
+  * debian/pollen.upstart: LP: #1505473
+    - remove typo in the upstart config which was preventing the service from starting
 
  -- Dustin Kirkland <kirkland@ubuntu.com>  Wed, 09 Sep 2015 15:22:58 -0500
 
