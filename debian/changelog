@@ -1,3 +1,9 @@
+pollen (4.20) unreleased; urgency=medium
+
+  * UNRELEASED
+
+ -- Dustin Kirkland <kirkland@ubuntu.com>  Tue, 13 Oct 2015 10:21:15 -0700
+
 pollen (4.19-0ubuntu1) wily; urgency=medium
 
   * debian/pollen.upstart: LP: #1505473
