@@ -38,7 +38,7 @@ if [ "$md5sum1" = "$md5sum2" ]; then
 	exit 2
 fi
 if [ -z "$bytes" ] || [ "$bytes" -lt 64 ]; then
-	echo "WARNING - pollen server did not respond with at least 64 bytes"
+	echo "WARNING - pollen server did not respond with at least 64 bytes [$bytes]"
 	exit 1
 fi
 if [ -z "$bpb" ] || [ "$bpb" -lt 5 ]; then

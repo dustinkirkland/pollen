@@ -1,6 +1,7 @@
 pollen (4.21) unreleased; urgency=medium
 
-  * UNRELEASED
+  * check_pollen:
+    - note the number of short bytes in the error log message
 
  -- Dustin Kirkland <kirkland@ubuntu.com>  Tue, 13 Oct 2015 10:25:58 -0700
 
