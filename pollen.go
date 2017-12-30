@@ -65,6 +65,7 @@ const usePollinateError = "Please use the pollinate client.  'sudo apt-get insta
 func (p *PollenServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	startTime := time.Now()
 	var avail []byte
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	challenge := r.FormValue("challenge")
 	if challenge == "" {
 		http.Error(w, usePollinateError, http.StatusBadRequest)
