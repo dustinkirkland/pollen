@@ -1,8 +1,10 @@
-pollen (4.22) unreleased; urgency=medium
+pollen (4.22) released; urgency=medium
 
-  * UNRELEASED
+  * ChangeLog, check_pollen:
+    - updated check_pollen to GPLv3
+    - test script is just a client, and thus should not be AGPL
 
- -- Dustin Kirkland <kirkland@ubuntu.com>  Fri, 22 Jul 2016 14:22:05 +0200
+ -- Dustin Kirkland <kirkland@ubuntu.com>  Wed, 05 Feb 2025 07:16:56 -0600
 
 pollen (4.21-0ubuntu1) yakkety; urgency=medium
 
